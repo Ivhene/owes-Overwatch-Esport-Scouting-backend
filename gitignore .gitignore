@@ -1,0 +1,25 @@
+# Ignore all appsettings files except for appsettings.json (if you want to keep the default)
+appsettings.*.json
+!appsettings.json
+
+# Ignore secrets and user secrets
+secrets.json
+*.secrets.json
+
+# Ignore local settings for development
+local.settings.json
+
+# Ignore Visual Studio user-specific files
+*.user
+*.suo
+
+# Ignore build output
+bin/
+obj/
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore VS Code settings (if using VS Code)
+.vscode/

@@ -1,0 +1,31 @@
+# Ignore all appsettings files 
+appsettings.*.json
+
+# Ignore secrets and user secrets
+secrets.json
+*.secrets.json
+
+# Ignore local settings for development
+local.settings.json
+
+# Ignore Visual Studio user-specific files
+*.user
+*.suo
+
+# Ignore build output
+bin/
+obj/
+
+# Ignore Docker files (if not needed in repo)
+**/docker-compose.*
+**/Dockerfile.*
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore VS Code settings (if using VS Code)
+.vscode/
+
+# Ignore VS settings (if using Visual Studio)
+.vs/
