@@ -1,5 +1,6 @@
 # Ignore all appsettings files 
 appsettings.*.json
+appsettings.json
 
 # Ignore secrets and user secrets
 secrets.json
