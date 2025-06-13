@@ -1,4 +1,5 @@
-﻿using Supabase.Postgrest.Attributes;
+﻿using backend.Enums;
+using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,9 @@ namespace backend.Models
 
         [JsonPropertyName("player_role")]
         public int PlayerRole { get; set; }
+
+        [JsonPropertyName("native_region")]
+        public Regions NativeRegion { get; set; } 
 
         [JsonPropertyName("player_image")]
         public string? PlayerImage { get; set; }

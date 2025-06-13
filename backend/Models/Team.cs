@@ -1,4 +1,5 @@
-﻿using Supabase.Postgrest.Attributes;
+﻿using backend.Enums;
+using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -17,5 +18,8 @@ namespace backend.Models
 
         [JsonPropertyName("team_image")]
         public string? TeamImage { get; set; }
+
+        [JsonPropertyName("competing_region")]
+        public Regions CompetingRegion { get; set; }
     }
 }
