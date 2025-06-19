@@ -1,25 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using backend.DTOs;
 using backend.Enums;
 using backend.Models;
+using System.Collections.Generic;
 
 namespace backend.Repositories.Interfaces
 {
     public interface IPlayerRepository
     {
-        List<Player> GetAllPlayers();
+        Task<List<Player>> GetAllPlayers();
 
-        Player GetPlayerByID(int playerID);
+        Task<Player> GetPlayerByID(int playerID);
 
-        Player GetPlayerByGamertag(string gamertag);
+        Task<Player> GetPlayerByGamertag(string gamertag);
 
-        Player AddPlayer(Player player);
+        Task<Player> AddPlayer(Player player);
 
-        Player UpdatePlayer(Player player);
+        Task<Player> UpdatePlayer(Player player, int playerId);
 
-        bool DeletePlayer(int playerID);
+        Task<bool> DeletePlayer(int playerID);
 
-        List<Player> GetPlayersByTeam(int teamID);
+        Task<List<Player>> GetPlayersByTeam(int teamID);
 
-        List<Player> GetPlayersByRegion(Regions region);
+        Task<List<Player>> GetPlayersByRegion(Regions region);
     }
 }

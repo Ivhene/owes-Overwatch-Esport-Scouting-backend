@@ -1,4 +1,5 @@
-﻿using backend.Enums;
+﻿using backend.DTOs;
+using backend.Enums;
 using backend.Models;
 using backend.Repositories.Interfaces;
 using backend.Services.Interfaces;
@@ -14,44 +15,62 @@ namespace backend.Services.Implementations
             _playerRepository = playerRepository;
         }
 
-        public Player AddPlayer(Player player)
+        public async Task<PlayerDTO> AddPlayer(Player player)
         {
-            return _playerRepository.AddPlayer(player);
+            return ConvertToDTO(await _playerRepository.AddPlayer(player));
         }
 
-        public bool DeletePlayer(int playerID)
+        public Task<bool> DeletePlayer(int playerID)
         {
             return _playerRepository.DeletePlayer(playerID);
         }
 
-        public List<Player> GetAllPlayers()
+        public Task<List<PlayerDTO>> GetAllPlayers()
         {
-            return _playerRepository.GetAllPlayers();
+            return _playerRepository.GetAllPlayers()
+                .ContinueWith(task => task.Result.Select(ConvertToDTO).ToList());
         }
 
-        public Player GetPlayerByGamertag(string gamertag)
+        public async Task<PlayerDTO> GetPlayerByGamertag(string gamertag)
         {
-            return _playerRepository.GetPlayerByGamertag(gamertag);
+            return ConvertToDTO(await _playerRepository.GetPlayerByGamertag(gamertag));
         }
 
-        public Player GetPlayerByID(int playerID)
+        public async Task<PlayerDTO> GetPlayerByID(int playerID)
         {
-            return _playerRepository.GetPlayerByID(playerID);
+            return ConvertToDTO(await _playerRepository.GetPlayerByID(playerID));
         }
 
-        public List<Player> GetPlayersByRegion(Regions region)
+        public Task<List<PlayerDTO>> GetPlayersByRegion(Regions region)
         {
-            return _playerRepository.GetPlayersByRegion(region);
+            return _playerRepository.GetPlayersByRegion(region)
+                .ContinueWith(task => task.Result.Select(ConvertToDTO).ToList());
         }
 
-        public List<Player> GetPlayersByTeam(int teamID)
+        public Task<List<PlayerDTO>> GetPlayersByTeam(int teamID)
         {
-            return _playerRepository.GetPlayersByTeam(teamID);
+            return _playerRepository.GetPlayersByTeam(teamID)
+                .ContinueWith(task => task.Result.Select(ConvertToDTO).ToList());
         }
 
-        public Player UpdatePlayer(Player player)
+        public async Task<PlayerDTO> UpdatePlayer(Player player, int playerId)
         {
-            return _playerRepository.UpdatePlayer(player);
+            return ConvertToDTO(await _playerRepository.UpdatePlayer(player, playerId));
+        }
+
+        private PlayerDTO ConvertToDTO(Player player)
+        {
+            return new PlayerDTO
+            {
+                PlayerId = player.PlayerId,
+                Gamertag = player.Gamertag,
+                CurrentTeam = player.CurrentTeam,
+                RealName = player.RealName,
+                Birthday = player.Birthday,
+                PlayerRole = player.PlayerRole,
+                NativeRegion = player.NativeRegion,
+                PlayerImage = player.PlayerImage
+            };
         }
     }
 }

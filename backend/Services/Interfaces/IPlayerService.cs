@@ -1,24 +1,25 @@
-﻿using backend.Enums;
+﻿using backend.DTOs;
+using backend.Enums;
 using backend.Models;
 
 namespace backend.Services.Interfaces
 {
     public interface IPlayerService
     {
-        public List<Player> GetAllPlayers();
+        public Task<List<PlayerDTO>> GetAllPlayers();
 
-        public Player GetPlayerByID(int playerID);
+        public Task<PlayerDTO> GetPlayerByID(int playerID);
 
-        public Player GetPlayerByGamertag(string gamertag);
+        public Task<PlayerDTO> GetPlayerByGamertag(string gamertag);
 
-        public Player AddPlayer(Player player);
+        public Task<PlayerDTO> AddPlayer(Player player);
 
-        public Player UpdatePlayer(Player player);
+        public Task<PlayerDTO> UpdatePlayer(Player player, int playerId);
 
-        public bool DeletePlayer(int playerID);
+        public Task<bool> DeletePlayer(int playerID);
 
-        public List<Player> GetPlayersByTeam(int teamID);
+        public Task<List<PlayerDTO>> GetPlayersByTeam(int teamID);
 
-        public List<Player> GetPlayersByRegion(Regions region);
+        public Task<List<PlayerDTO>> GetPlayersByRegion(Regions region);
     }
 }

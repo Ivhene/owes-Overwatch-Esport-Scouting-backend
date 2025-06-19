@@ -1,49 +1,70 @@
 ﻿using backend.Enums;
 using backend.Models;
 using backend.Repositories.Interfaces;
+using Supabase;
 
 namespace backend.Repositories.Implementations
 {
     public class PlayerRepository : IPlayerRepository
     {
-        public Player AddPlayer(Player player)
+        private readonly Client _supabase;
+
+        public PlayerRepository(Client supabase)
         {
-            throw new NotImplementedException();
+            _supabase = supabase;
         }
 
-        public bool DeletePlayer(int playerID)
+        public async Task<Player> AddPlayer(Player player)
         {
-            throw new NotImplementedException();
+            return (await _supabase.From<Player>().Insert(player)).Model ?? new Player();
         }
 
-        public List<Player> GetAllPlayers()
+        public async Task<bool> DeletePlayer(int playerID)
         {
-            throw new NotImplementedException();
+            await _supabase.From<Player>().Where(player => player.PlayerId == playerID).Delete();
+
+            return true;
         }
 
-        public Player GetPlayerByGamertag(string gamertag)
+        public async Task<List<Player>> GetAllPlayers()
         {
-            throw new NotImplementedException();
+            var result = await _supabase.From<Player>().Get();
+            return result.Models ?? new List<Player>();
         }
 
-        public Player GetPlayerByID(int playerID)
+        public async Task<Player> GetPlayerByGamertag(string gamertag)
         {
-            throw new NotImplementedException();
+            return (await _supabase.From<Player>().Where(player => player.Gamertag == gamertag).Get()).Models?.FirstOrDefault() ?? new Player();
         }
 
-        public List<Player> GetPlayersByRegion(Regions region)
+        public async Task<Player> GetPlayerByID(int playerID)
         {
-            throw new NotImplementedException();
+            return (await _supabase.From<Player>().Where(player => player.PlayerId == playerID).Get()).Models?.FirstOrDefault() ?? new Player();
         }
 
-        public List<Player> GetPlayersByTeam(int teamID)
+        public async Task<List<Player>> GetPlayersByRegion(Regions region)
         {
-            throw new NotImplementedException();
+            return (await _supabase.From<Player>().Where(player => player.NativeRegion == region).Get()).Models ?? new List<Player>();
         }
 
-        public Player UpdatePlayer(Player player)
+        public async Task<List<Player>> GetPlayersByTeam(int teamID)
         {
-            throw new NotImplementedException();
+            return (await _supabase.From<Player>().Where(player => player.CurrentTeam == teamID).Get()).Models ?? new List<Player>();
+        }
+
+        public async Task<Player> UpdatePlayer(Player player, int playerId)
+        {
+            return (await _supabase.From<Player>()
+                .Where(p => p.PlayerId == playerId)
+                .Set(p => p.Gamertag, player.Gamertag)
+                .Set(p => p.NativeRegion, player.NativeRegion)
+                .Set(p => p.RealName, player.RealName)
+                .Set(p => p.Birthday, player.Birthday)
+                .Set(p => p.PlayerRole, player.PlayerRole)
+                .Set(p => p.PlayerImage, player.PlayerImage)
+                .Set(p => p.CurrentTeam, player.CurrentTeam)
+                .Update())
+                .Model ?? new Player();
         }
     }
 }
