@@ -4,8 +4,9 @@ using backend.Services.Implementations;
 using backend.Repositories.Interfaces;
 using backend.Models;
 using backend.Enums;
-using backend.Services.Implementations; // Ensure this namespace is correct and matches where PlayerService is defined.
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using backend.DTOs;
 
 namespace backend.Tests.Services
 {
@@ -32,94 +33,96 @@ namespace backend.Tests.Services
         }
 
         [Fact]
-        public void TestGetAllPlayers()
+        public async Task TestGetAllPlayers()
         {
-            _mockRepo.Setup(r => r.GetAllPlayers()).Returns(_players);
+            _mockRepo.Setup(r => r.GetAllPlayers()).ReturnsAsync(_players);
 
-            List<Player> result = _service.GetAllPlayers();
+            List<PlayerDTO> result = await _service.GetAllPlayers();
 
-            Assert.Equal(result.Count, _players.Count);
+            Assert.Equal(_players.Count, result.Count);
             Assert.Equal("PlayerOne", result[0].Gamertag);
             Assert.Equal("PlayerSeven", result[6].Gamertag);
         }
 
         [Fact]
-        public void TestAddPlayer()
+        public async Task TestAddPlayer()
         {
             Player newPlayer = new Player { PlayerId = 8, Gamertag = "PlayerEight", NativeRegion = Regions.Japan, RealName = "Player Eight", Birthday = null, PlayerRole = 1, PlayerImage = null, CurrentTeam = 1 };
-            _mockRepo.Setup(r => r.AddPlayer(newPlayer)).Returns(newPlayer);
+            _mockRepo.Setup(r => r.AddPlayer(newPlayer)).ReturnsAsync(newPlayer);
 
-            Player result = _service.AddPlayer(newPlayer);
+            PlayerDTO result = await _service.AddPlayer(newPlayer);
 
             Assert.NotNull(result);
             Assert.Equal("PlayerEight", result.Gamertag);
         }
 
         [Fact]
-        public void TestDeletePlayer() 
+        public async Task TestDeletePlayer() 
         { 
-            _mockRepo.Setup(r => r.DeletePlayer(It.IsAny<int>())).Returns(true);
-            _mockRepo.Setup(r => r.GetPlayerByID(7)).Throws(new KeyNotFoundException("Player not found"));
+            _mockRepo.Setup(r => r.DeletePlayer(It.IsAny<int>())).ReturnsAsync(true);
+            _mockRepo.Setup(r => r.GetPlayerByID(7)).ThrowsAsync(new KeyNotFoundException("Player not found"));
 
-            Assert.True(_service.DeletePlayer(7));
-            Assert.Throws<KeyNotFoundException>(() => _service.GetPlayerByID(7));
+            Assert.True(await _service.DeletePlayer(7));
+            await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _service.GetPlayerByID(7));
         }
 
         [Fact]
-        public void TestGetPlayerByGamertag()
+        public async Task TestGetPlayerByGamertag()
         {
             string gamertag = "PlayerThree";
-            _mockRepo.Setup(r => r.GetPlayerByGamertag(gamertag)).Returns(_players[2]);
+            _mockRepo.Setup(r => r.GetPlayerByGamertag(gamertag)).ReturnsAsync(_players[2]);
 
-            Player result = _service.GetPlayerByGamertag(gamertag);
+            PlayerDTO result = await _service.GetPlayerByGamertag(gamertag);
 
             Assert.NotNull(result);
             Assert.Equal(gamertag, result.Gamertag);
         }
 
         [Fact]
-        public void TestGetPlayerByID()
+        public async Task TestGetPlayerByID()
         {
             int playerId = 1;
-            _mockRepo.Setup(r => r.GetPlayerByID(playerId)).Returns(_players[0]);
+            _mockRepo.Setup(r => r.GetPlayerByID(playerId)).ReturnsAsync(_players[0]);
 
-            Player result = _service.GetPlayerByID(playerId);
+            PlayerDTO result = await _service.GetPlayerByID(playerId);
 
             Assert.NotNull(result);
             Assert.Equal(playerId, result.PlayerId);
         }
 
         [Fact]
-        public void TestGetPlayersByRegion()
+        public async Task TestGetPlayersByRegion()
         {
             Regions region = Regions.NA;
-            _mockRepo.Setup(r => r.GetPlayersByRegion(region)).Returns(_players.FindAll(p => p.NativeRegion == region));
+            var expected = _players.FindAll(p => p.NativeRegion == region);
+            _mockRepo.Setup(r => r.GetPlayersByRegion(region)).ReturnsAsync(expected);
 
-            List<Player> result = _service.GetPlayersByRegion(region);
+            List<PlayerDTO> result = await _service.GetPlayersByRegion(region);
 
             Assert.NotNull(result);
             Assert.All(result, p => Assert.Equal(region, p.NativeRegion));
         }
 
         [Fact]
-        public void TestGetPlayersByTeam()
+        public async Task TestGetPlayersByTeam()
         {
             int teamId = 1; 
-            _mockRepo.Setup(r => r.GetPlayersByTeam(teamId)).Returns(_players.FindAll(p => p.CurrentTeam == teamId));
+            var expected = _players.FindAll(p => p.CurrentTeam == teamId);
+            _mockRepo.Setup(r => r.GetPlayersByTeam(teamId)).ReturnsAsync(expected);
 
-            List<Player> result = _service.GetPlayersByTeam(teamId);
+            List<PlayerDTO> result = await _service.GetPlayersByTeam(teamId);
 
             Assert.NotNull(result);
             Assert.All(result, p => Assert.Equal(teamId, p.CurrentTeam));
         }
 
         [Fact]
-        public void TestUpdatePlayer()
+        public async Task TestUpdatePlayer()
         {
             Player updatedPlayer = new Player { PlayerId = 1, Gamertag = "UpdatedPlayerOne", NativeRegion = Regions.NA, RealName = "Updated Player One", Birthday = null, PlayerRole = 1, PlayerImage = null, CurrentTeam = 1 };
-            _mockRepo.Setup(r => r.UpdatePlayer(updatedPlayer)).Returns(updatedPlayer);
+            _mockRepo.Setup(r => r.UpdatePlayer(updatedPlayer, 1)).ReturnsAsync(updatedPlayer);
 
-            Player result = _service.UpdatePlayer(updatedPlayer);
+            PlayerDTO result = await _service.UpdatePlayer(updatedPlayer, 1);
 
             Assert.NotNull(result);
             Assert.Equal("UpdatedPlayerOne", result.Gamertag);
