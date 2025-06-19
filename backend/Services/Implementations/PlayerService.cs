@@ -16,42 +16,42 @@ namespace backend.Services.Implementations
 
         public Player AddPlayer(Player player)
         {
-            throw new NotImplementedException();
+            return _playerRepository.AddPlayer(player);
         }
 
         public bool DeletePlayer(int playerID)
         {
-            throw new NotImplementedException();
+            return _playerRepository.DeletePlayer(playerID);
         }
 
         public List<Player> GetAllPlayers()
         {
-            throw new NotImplementedException();
+            return _playerRepository.GetAllPlayers();
         }
 
         public Player GetPlayerByGamertag(string gamertag)
         {
-            throw new NotImplementedException();
+            return _playerRepository.GetPlayerByGamertag(gamertag);
         }
 
         public Player GetPlayerByID(int playerID)
         {
-            throw new NotImplementedException();
+            return _playerRepository.GetPlayerByID(playerID);
         }
 
         public List<Player> GetPlayersByRegion(Regions region)
         {
-            throw new NotImplementedException();
+            return _playerRepository.GetPlayersByRegion(region);
         }
 
         public List<Player> GetPlayersByTeam(int teamID)
         {
-            throw new NotImplementedException();
+            return _playerRepository.GetPlayersByTeam(teamID);
         }
 
         public Player UpdatePlayer(Player player)
         {
-            throw new NotImplementedException();
+            return _playerRepository.UpdatePlayer(player);
         }
     }
 }
