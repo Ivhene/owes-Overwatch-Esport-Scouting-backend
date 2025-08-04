@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("/player")]
     public class PlayerController : ControllerBase
     {
         private readonly IPlayerService _playerService;
@@ -16,7 +15,7 @@ namespace backend.Controllers
             _playerService = playerService;
         }
 
-        [HttpGet]
+        [HttpGet("/players")]
         public async Task<IActionResult> GetAllPlayers()
         {
             List<PlayerDTO> players = await _playerService.GetAllPlayers();
@@ -24,7 +23,7 @@ namespace backend.Controllers
             return Ok(players);
         }
 
-        [HttpGet("/{playerID}")]
+        [HttpGet("/players/{playerID}")]
         public async Task<IActionResult> GetPlayerByID(int playerID)
         {
             PlayerDTO player = await _playerService.GetPlayerByID(playerID);
@@ -35,7 +34,7 @@ namespace backend.Controllers
             return Ok(player);
         }
 
-        [HttpGet("/gamertag/{gamertag}")]
+        [HttpGet("/players/gamertag/{gamertag}")]
         public async Task<IActionResult> GetPlayerByGamertag(string gamertag)
         {
             PlayerDTO player = await _playerService.GetPlayerByGamertag(gamertag);
@@ -46,7 +45,7 @@ namespace backend.Controllers
             return Ok(player);
         }
 
-        [HttpPost]
+        [HttpPost("/players")]
         public async Task<IActionResult> AddPlayer([FromBody] Player player)
         {
             if (player == null)
@@ -57,7 +56,7 @@ namespace backend.Controllers
             return CreatedAtAction(nameof(GetPlayerByID), new { playerID = createdPlayer.PlayerId }, createdPlayer);
         }
 
-        [HttpPut("/{playerID}")]
+        [HttpPut("/players/{playerID}")]
         public async Task<IActionResult> UpdatePlayer(int playerID, [FromBody] Player player)
         {
             if (player == null)
@@ -73,7 +72,7 @@ namespace backend.Controllers
             return Ok(updatedPlayer);
         }
 
-        [HttpDelete("/{playerID}")]
+        [HttpDelete("/players/{playerID}")]
         public async Task<IActionResult> DeletePlayer(int playerID)
         {
             bool deleted = await _playerService.DeletePlayer(playerID);
