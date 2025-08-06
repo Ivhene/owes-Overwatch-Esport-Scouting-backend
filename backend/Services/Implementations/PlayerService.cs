@@ -31,11 +31,6 @@ namespace backend.Services.Implementations
                 .ContinueWith(task => task.Result.Select(ConvertToDTO).ToList());
         }
 
-        public async Task<PlayerDTO> GetPlayerByGamertag(string gamertag)
-        {
-            return ConvertToDTO(await _playerRepository.GetPlayerByGamertag(gamertag));
-        }
-
         public async Task<PlayerDTO> GetPlayerByID(int playerID)
         {
             return ConvertToDTO(await _playerRepository.GetPlayerByID(playerID));

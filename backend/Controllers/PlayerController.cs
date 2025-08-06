@@ -34,17 +34,6 @@ namespace backend.Controllers
             return Ok(player);
         }
 
-        [HttpGet("/players/gamertag/{gamertag}")]
-        public async Task<IActionResult> GetPlayerByGamertag(string gamertag)
-        {
-            PlayerDTO player = await _playerService.GetPlayerByGamertag(gamertag);
-            if (player == null)
-            {
-                return NotFound();
-            }
-            return Ok(player);
-        }
-
         [HttpPost("/players")]
         public async Task<IActionResult> AddPlayer([FromBody] Player player)
         {

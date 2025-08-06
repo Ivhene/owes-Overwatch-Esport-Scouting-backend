@@ -32,11 +32,6 @@ namespace backend.Repositories.Implementations
             return result.Models ?? new List<Player>();
         }
 
-        public async Task<Player> GetPlayerByGamertag(string gamertag)
-        {
-            return (await _supabase.From<Player>().Where(player => player.Gamertag == gamertag).Get()).Models?.FirstOrDefault() ?? new Player();
-        }
-
         public async Task<Player> GetPlayerByID(int playerID)
         {
             return (await _supabase.From<Player>().Where(player => player.PlayerId == playerID).Get()).Models?.FirstOrDefault() ?? new Player();

@@ -28,16 +28,6 @@ namespace backend.Services.Interfaces
         Task<PlayerDTO> GetPlayerByID(int playerID);
 
         /// <summary>
-        /// Retrieves a single player by gamertag.
-        /// </summary>
-        /// <param name="gamertag">The gamertag string.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> whose result is the <see cref="PlayerDTO"/> matching <paramref name="gamertag"/>,
-        /// or <c>null</c> if none is found.
-        /// </returns>
-        Task<PlayerDTO> GetPlayerByGamertag(string gamertag);
-
-        /// <summary>
         /// Creates a new player.
         /// </summary>
         /// <param name="player">The <see cref="Player"/> domain model to add.</param>
