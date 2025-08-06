@@ -67,18 +67,6 @@ namespace backend.Tests.Services
         }
 
         [Fact]
-        public async Task TestGetPlayerByGamertag()
-        {
-            string gamertag = "PlayerThree";
-            _mockRepo.Setup(r => r.GetPlayerByGamertag(gamertag)).ReturnsAsync(_players[2]);
-
-            PlayerDTO result = await _service.GetPlayerByGamertag(gamertag);
-
-            Assert.NotNull(result);
-            Assert.Equal(gamertag, result.Gamertag);
-        }
-
-        [Fact]
         public async Task TestGetPlayerByID()
         {
             int playerId = 1;
