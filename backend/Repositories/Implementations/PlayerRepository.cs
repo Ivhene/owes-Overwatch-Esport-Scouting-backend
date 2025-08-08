@@ -61,66 +61,56 @@ namespace backend.Repositories.Implementations
             )
         ";
 
-            // 1) do the PostgREST join-select on your Player table
             var resp = await _supabase
-                .From<Player>()               // must be your BaseModel type
+                .From<RawPlayerRow>()
                 .Select(rawColumns)
                 .Get();
 
-            // 2) pull out the raw JSON string
-            //    (ModeledResponse<T> inherits BaseResponse, which has a Content property)
-            string json = resp.Content;      // :contentReference[oaicite:0]{index=0}
+            var rows = resp.Models ?? new List<RawPlayerRow>();
 
-            // 3) deserialize into your RawPlayerRow types
-            var rawRows = JsonConvert
-                .DeserializeObject<List<RawPlayerRow>>(json)
-                ?? new List<RawPlayerRow>();
+            return rows.Select(r => new CompletePlayerDTO
+            {
+                PlayerId = r.PlayerId,
+                Gamertag = r.Gamertag,
+                RealName = r.RealName,
+                Birthday = r.Birthday,
+                NativeRegion = r.NativeRegion,
+                PlayerImage = r.PlayerImage,
 
-            // 4) map into your immutable DTOs
-            return rawRows
-                .Select(r => new CompletePlayerDTO
+                Role = new RoleDTO
                 {
-                    PlayerId = r.PlayerId,
-                    Gamertag = r.Gamertag,
-                    RealName = r.RealName,
-                    Birthday = r.Birthday,
-                    NativeRegion = r.NativeRegion,
-                    PlayerImage = r.PlayerImage,
+                    RoleId = r.Role.RoleId,
+                    RoleName = r.Role.RoleName,
+                    RoleImage = r.Role.RoleImage
+                },
 
-                    Role = new RoleDTO
+                CurrentTeam = r.CurrentTeam is null
+                    ? null
+                    : new TeamDTO
                     {
-                        RoleId = r.Role.RoleId,
-                        RoleName = r.Role.RoleName,
-                        RoleImage = r.Role.RoleImage
+                        TeamId = r.CurrentTeam.TeamId,
+                        TeamName = r.CurrentTeam.TeamName,
+                        TeamImage = r.CurrentTeam.TeamImage,
+                        CompetingRegion = r.CurrentTeam.CompetingRegion
                     },
 
-                    CurrentTeam = r.CurrentTeam is null
-                        ? null
-                        : new TeamDTO
+                Ratings = r.Ratings
+                    .Select(rt => new RatingDTO
+                    {
+                        RatingId = rt.RatingId,
+                        Ratings = rt.Ratings,
+                        RatingUser = rt.RatingUser,
+                        Hero = new HeroDTO
                         {
-                            TeamId = r.CurrentTeam.TeamId,
-                            TeamName = r.CurrentTeam.TeamName,
-                            TeamImage = r.CurrentTeam.TeamImage,
-                            CompetingRegion = r.CurrentTeam.CompetingRegion
-                        },
-
-                    Ratings = r.Ratings
-                        .Select(rt => new RatingDTO
-                        {
-                            RatingId = rt.RatingId,
-                            Ratings = rt.Ratings,
-                            RatingUser = rt.RatingUser,
-                            Hero = new HeroDTO
-                            {
-                                HeroId = rt.Hero.HeroId,
-                                HeroName = rt.Hero.HeroName,
-                                HeroImage = rt.Hero.HeroImage,
-                                HeroRole = rt.Hero.HeroRole
-                            }
-                        })
-                        .ToList()
-                })
-                .ToList();
+                            HeroId = rt.Hero.HeroId,
+                            HeroName = rt.Hero.HeroName,
+                            HeroImage = rt.Hero.HeroImage,
+                            HeroRole = rt.Hero.HeroRole
+                        }
+                    })
+                    .ToList()
+            })
+            .ToList();
         }
 
         public async Task<Player> GetPlayerByID(int playerID)
