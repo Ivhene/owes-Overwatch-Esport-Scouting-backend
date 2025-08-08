@@ -16,7 +16,7 @@ namespace backend.Repositories.Interfaces
         /// <returns>
         /// A list of all the <see cref="Player"/> entities.
         /// </returns>
-        Task<List<Player>> GetAllPlayers();
+        Task<List<CompletePlayerDTO>> GetAllPlayers();
 
         /// <summary>
         /// Retrieves a single player by its unique identifier.

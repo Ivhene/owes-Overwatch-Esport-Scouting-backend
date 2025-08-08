@@ -25,10 +25,9 @@ namespace backend.Services.Implementations
             return _playerRepository.DeletePlayer(playerID);
         }
 
-        public Task<List<PlayerDTO>> GetAllPlayers()
+        public Task<List<CompletePlayerDTO>> GetAllPlayers()
         {
-            return _playerRepository.GetAllPlayers()
-                .ContinueWith(task => task.Result.Select(ConvertToDTO).ToList());
+            return _playerRepository.GetAllPlayers();
         }
 
         public async Task<PlayerDTO> GetPlayerByID(int playerID)

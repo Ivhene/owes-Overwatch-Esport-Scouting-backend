@@ -1,6 +1,8 @@
-﻿using backend.Enums;
+﻿using backend.DTOs;
+using backend.Enums;
 using backend.Models;
 using backend.Repositories.Interfaces;
+using Newtonsoft.Json;
 using Supabase;
 
 namespace backend.Repositories.Implementations
@@ -26,10 +28,99 @@ namespace backend.Repositories.Implementations
             return true;
         }
 
-        public async Task<List<Player>> GetAllPlayers()
+        public async Task<List<CompletePlayerDTO>> GetAllPlayers()
         {
-            var result = await _supabase.From<Player>().Get();
-            return result.Models ?? new List<Player>();
+            const string rawColumns = @"
+            player_id,
+            gamertag,
+            real_name,
+            birthday,
+            native_region,
+            player_image,
+            role:role (
+              role_id,
+              role_name,
+              role_image
+            ),
+            current_team:team (
+              team_id,
+              team_name,
+              team_image,
+              competing_region
+            ),
+            ratings:rating (
+              rating_id,
+              rating,
+              rating_user,
+              hero:hero (
+                hero_id,
+                hero_name,
+                hero_image,
+                hero_role
+              )
+            )
+        ";
+
+            // 1) do the PostgREST join-select on your Player table
+            var resp = await _supabase
+                .From<Player>()               // must be your BaseModel type
+                .Select(rawColumns)
+                .Get();
+
+            // 2) pull out the raw JSON string
+            //    (ModeledResponse<T> inherits BaseResponse, which has a Content property)
+            string json = resp.Content;      // :contentReference[oaicite:0]{index=0}
+
+            // 3) deserialize into your RawPlayerRow types
+            var rawRows = JsonConvert
+                .DeserializeObject<List<RawPlayerRow>>(json)
+                ?? new List<RawPlayerRow>();
+
+            // 4) map into your immutable DTOs
+            return rawRows
+                .Select(r => new CompletePlayerDTO
+                {
+                    PlayerId = r.PlayerId,
+                    Gamertag = r.Gamertag,
+                    RealName = r.RealName,
+                    Birthday = r.Birthday,
+                    NativeRegion = r.NativeRegion,
+                    PlayerImage = r.PlayerImage,
+
+                    Role = new RoleDTO
+                    {
+                        RoleId = r.Role.RoleId,
+                        RoleName = r.Role.RoleName,
+                        RoleImage = r.Role.RoleImage
+                    },
+
+                    CurrentTeam = r.CurrentTeam is null
+                        ? null
+                        : new TeamDTO
+                        {
+                            TeamId = r.CurrentTeam.TeamId,
+                            TeamName = r.CurrentTeam.TeamName,
+                            TeamImage = r.CurrentTeam.TeamImage,
+                            CompetingRegion = r.CurrentTeam.CompetingRegion
+                        },
+
+                    Ratings = r.Ratings
+                        .Select(rt => new RatingDTO
+                        {
+                            RatingId = rt.RatingId,
+                            Ratings = rt.Ratings,
+                            RatingUser = rt.RatingUser,
+                            Hero = new HeroDTO
+                            {
+                                HeroId = rt.Hero.HeroId,
+                                HeroName = rt.Hero.HeroName,
+                                HeroImage = rt.Hero.HeroImage,
+                                HeroRole = rt.Hero.HeroRole
+                            }
+                        })
+                        .ToList()
+                })
+                .ToList();
         }
 
         public async Task<Player> GetPlayerByID(int playerID)

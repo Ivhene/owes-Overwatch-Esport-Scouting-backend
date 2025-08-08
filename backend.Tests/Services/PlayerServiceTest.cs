@@ -24,7 +24,7 @@ namespace backend.Tests.Services
             new Player { PlayerId = 5, Gamertag = "PlayerFive", NativeRegion = Regions.NA, RealName = "Player Five", Birthday = null, PlayerRole = 3, PlayerImage = null, CurrentTeam = 2 },
             new Player { PlayerId = 6, Gamertag = "PlayerSix", NativeRegion = Regions.NA, RealName = "Player Six", Birthday = null, PlayerRole = 3, PlayerImage = null, CurrentTeam = 2 },
             new Player { PlayerId = 7, Gamertag = "PlayerSeven", NativeRegion = Regions.Japan, RealName = "Player Seven", Birthday = null, PlayerRole = 1, PlayerImage = null, CurrentTeam = 3 },
-        };  
+        };
 
         public PlayerServiceTests()
         {
@@ -35,9 +35,37 @@ namespace backend.Tests.Services
         [Fact]
         public async Task TestGetAllPlayers()
         {
-            _mockRepo.Setup(r => r.GetAllPlayers()).ReturnsAsync(_players);
+            var completeDtos = _players
+            .Select(p => new CompletePlayerDTO
+            {
+                PlayerId = p.PlayerId,
+                Gamertag = p.Gamertag,
+                RealName = p.RealName,
+                Birthday = p.Birthday,
+                NativeRegion = p.NativeRegion,
+                PlayerImage = p.PlayerImage,
+                Role = new RoleDTO
+                {
+                    RoleId = p.PlayerRole,
+                    RoleName = $"Role{p.PlayerRole}",      
+                    RoleImage = $"/images/role{p.PlayerRole}.png"
+                },
+                CurrentTeam = p.CurrentTeam.HasValue
+                    ? new TeamDTO
+                    {
+                        TeamId = p.CurrentTeam.Value,
+                        TeamName = $"Team{p.CurrentTeam.Value}",
+                        TeamImage = null,
+                        CompetingRegion = p.NativeRegion
+                    }
+                    : null,
+                Ratings = new List<RatingDTO>()
+            })
+            .ToList();
 
-            List<PlayerDTO> result = await _service.GetAllPlayers();
+            _mockRepo.Setup(r => r.GetAllPlayers()).ReturnsAsync(completeDtos);
+
+            List<CompletePlayerDTO> result = await _service.GetAllPlayers();
 
             Assert.Equal(_players.Count, result.Count);
             Assert.Equal("PlayerOne", result[0].Gamertag);

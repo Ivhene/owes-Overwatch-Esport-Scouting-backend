@@ -13,9 +13,9 @@ namespace backend.Services.Interfaces
         /// Retrieves all players.
         /// </summary>
         /// <returns>
-        /// A list of all the players as <see cref="PlayerDTO"/>s.
+        /// A list of all the players as <see cref="CompletePlayerDTO"/>s.
         /// </returns>
-        Task<List<PlayerDTO>> GetAllPlayers();
+        Task<List<CompletePlayerDTO>> GetAllPlayers();
 
         /// <summary>
         /// Retrieves a single player by its unique identifier.

@@ -18,7 +18,7 @@ namespace backend.Controllers
         [HttpGet("/players")]
         public async Task<IActionResult> GetAllPlayers()
         {
-            List<PlayerDTO> players = await _playerService.GetAllPlayers();
+            List<CompletePlayerDTO> players = await _playerService.GetAllPlayers();
 
             return Ok(players);
         }
