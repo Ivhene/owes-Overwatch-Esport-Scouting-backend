@@ -97,10 +97,38 @@ namespace backend.Tests.Services
         [Fact]
         public async Task TestGetPlayerByID()
         {
-            int playerId = 1;
-            _mockRepo.Setup(r => r.GetPlayerByID(playerId)).ReturnsAsync(_players[0]);
+            var completeDtos = _players
+            .Select(p => new CompletePlayerDTO
+            {
+                PlayerId = p.PlayerId,
+                Gamertag = p.Gamertag,
+                RealName = p.RealName,
+                Birthday = p.Birthday,
+                NativeRegion = p.NativeRegion,
+                PlayerImage = p.PlayerImage,
+                Role = new RoleDTO
+                {
+                    RoleId = p.PlayerRole,
+                    RoleName = $"Role{p.PlayerRole}",
+                    RoleImage = $"/images/role{p.PlayerRole}.png"
+                },
+                CurrentTeam = p.CurrentTeam.HasValue
+                    ? new TeamDTO
+                    {
+                        TeamId = p.CurrentTeam.Value,
+                        TeamName = $"Team{p.CurrentTeam.Value}",
+                        TeamImage = null,
+                        CompetingRegion = p.NativeRegion
+                    }
+                    : null,
+                Ratings = new List<RatingDTO>()
+            })
+            .ToList();
 
-            PlayerDTO result = await _service.GetPlayerByID(playerId);
+            int playerId = 1;
+            _mockRepo.Setup(r => r.GetPlayerByID(playerId)).ReturnsAsync(completeDtos[0]);
+
+            CompletePlayerDTO result = await _service.GetPlayerByID(playerId);
 
             Assert.NotNull(result);
             Assert.Equal(playerId, result.PlayerId);

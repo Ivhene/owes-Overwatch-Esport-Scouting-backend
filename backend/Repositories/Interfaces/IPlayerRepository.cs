@@ -26,7 +26,7 @@ namespace backend.Repositories.Interfaces
         /// The <see cref="Player"/> matching <paramref name="playerID"/>,
         /// or <c>null</c> if none is found.
         /// </returns>
-        Task<Player> GetPlayerByID(int playerID);
+        Task<CompletePlayerDTO> GetPlayerByID(int playerID);
 
         /// <summary>
         /// Creates a new player record.

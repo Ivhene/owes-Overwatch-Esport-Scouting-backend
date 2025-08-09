@@ -30,9 +30,9 @@ namespace backend.Services.Implementations
             return _playerRepository.GetAllPlayers();
         }
 
-        public async Task<PlayerDTO> GetPlayerByID(int playerID)
+        public async Task<CompletePlayerDTO> GetPlayerByID(int playerID)
         {
-            return ConvertToDTO(await _playerRepository.GetPlayerByID(playerID));
+            return await _playerRepository.GetPlayerByID(playerID);
         }
 
         public Task<List<PlayerDTO>> GetPlayersByRegion(Regions region)

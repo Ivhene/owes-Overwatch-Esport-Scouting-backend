@@ -25,7 +25,7 @@ namespace backend.Services.Interfaces
         /// A <see cref="Task{TResult}"/> whose result is the <see cref="PlayerDTO"/> matching <paramref name="playerID"/>,
         /// or <c>null</c> if none is found.
         /// </returns>
-        Task<PlayerDTO> GetPlayerByID(int playerID);
+        Task<CompletePlayerDTO> GetPlayerByID(int playerID);
 
         /// <summary>
         /// Creates a new player.

@@ -26,7 +26,7 @@ namespace backend.Controllers
         [HttpGet("/players/{playerID}")]
         public async Task<IActionResult> GetPlayerByID(int playerID)
         {
-            PlayerDTO player = await _playerService.GetPlayerByID(playerID);
+            CompletePlayerDTO player = await _playerService.GetPlayerByID(playerID);
             if (player == null)
             {
                 return NotFound();

@@ -31,44 +31,44 @@ namespace backend.Repositories.Implementations
         public async Task<List<CompletePlayerDTO>> GetAllPlayers()
         {
             const string rawColumns = @"
-            player_id,
-            gamertag,
-            real_name,
-            birthday,
-            native_region,
-            player_image,
-            role:role (
-              role_id,
-              role_name,
-              role_image
-            ),
-            current_team:team (
-              team_id,
-              team_name,
-              team_image,
-              competing_region
-            ),
-            ratings:rating (
-              rating_id,
-              rating,
-              rating_user,
-              hero:hero (
-                hero_id,
-                hero_name,
-                hero_image,
-                hero_role
-              )
-            )
-        ";
+                player_id,
+                gamertag,
+                real_name,
+                birthday,
+                native_region,
+                player_image,
+                role:role (
+                  role_id,
+                  role_name,
+                  role_image
+                ),
+                current_team:team (
+                  team_id,
+                  team_name,
+                  team_image,
+                  competing_region
+                ),
+                ratings:rating (
+                  rating_id,
+                  rating,
+                  rating_user,
+                  hero:hero (
+                    hero_id,
+                    hero_name,
+                    hero_image,
+                    hero_role
+                  )
+                )
+            ";
 
-            var resp = await _supabase
+            List<RawPlayerRow> data = (await _supabase
                 .From<RawPlayerRow>()
                 .Select(rawColumns)
-                .Get();
+                .Get())
+                .Models ?? new List<RawPlayerRow>(); 
 
-            var rows = resp.Models ?? new List<RawPlayerRow>();
 
-            return rows.Select(r => new CompletePlayerDTO
+            return data.Select(r => new CompletePlayerDTO
             {
                 PlayerId = r.PlayerId,
                 Gamertag = r.Gamertag,
@@ -113,9 +113,86 @@ namespace backend.Repositories.Implementations
             .ToList();
         }
 
-        public async Task<Player> GetPlayerByID(int playerID)
+        public async Task<CompletePlayerDTO> GetPlayerByID(int playerID)
         {
-            return (await _supabase.From<Player>().Where(player => player.PlayerId == playerID).Get()).Models?.FirstOrDefault() ?? new Player();
+            const string rawColumns = @"
+                player_id,
+                gamertag,
+                real_name,
+                birthday,
+                native_region,
+                player_image,
+                role:role (
+                  role_id,
+                  role_name,
+                  role_image
+                ),
+                current_team:team (
+                  team_id,
+                  team_name,
+                  team_image,
+                  competing_region
+                ),
+                ratings:rating (
+                  rating_id,
+                  rating,
+                  rating_user,
+                  hero:hero (
+                    hero_id,
+                    hero_name,
+                    hero_image,
+                    hero_role
+                  )
+                )
+            ";
+
+            RawPlayerRow data = (await _supabase
+                .From<RawPlayerRow>()
+                .Where(player => player.PlayerId == playerID)
+                .Select(rawColumns)
+                .Get())
+                .Models
+                .FirstOrDefault() ?? new RawPlayerRow();
+
+            return data != null ? new CompletePlayerDTO
+            {
+                PlayerId = data.PlayerId,
+                Gamertag = data.Gamertag,
+                RealName = data.RealName,
+                Birthday = data.Birthday,
+                NativeRegion = data.NativeRegion,
+                PlayerImage = data.PlayerImage,
+                Role = new RoleDTO
+                {
+                    RoleId = data.Role.RoleId,
+                    RoleName = data.Role.RoleName,
+                    RoleImage = data.Role.RoleImage
+                },
+                CurrentTeam = data.CurrentTeam is null
+                    ? null
+                    : new TeamDTO
+                    {
+                        TeamId = data.CurrentTeam.TeamId,
+                        TeamName = data.CurrentTeam.TeamName,
+                        TeamImage = data.CurrentTeam.TeamImage,
+                        CompetingRegion = data.CurrentTeam.CompetingRegion
+                    },
+                Ratings = data.Ratings
+                    .Select(rt => new RatingDTO
+                    {
+                        RatingId = rt.RatingId,
+                        Ratings = rt.Ratings,
+                        RatingUser = rt.RatingUser,
+                        Hero = new HeroDTO
+                        {
+                            HeroId = rt.Hero.HeroId,
+                            HeroName = rt.Hero.HeroName,
+                            HeroImage = rt.Hero.HeroImage,
+                            HeroRole = rt.Hero.HeroRole
+                        }
+                    })
+                    .ToList()
+            } : new CompletePlayerDTO();
         }
 
         public async Task<List<Player>> GetPlayersByRegion(Regions region)
