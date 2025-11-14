@@ -50,6 +50,8 @@ builder.Services.AddSwaggerGen();
 // DI
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<TeamRepository>();
+builder.Services.AddScoped<TeamService>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
