@@ -52,6 +52,8 @@ builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<TeamRepository>();
 builder.Services.AddScoped<TeamService>();
+builder.Services.AddScoped<HeroRepository>();
+builder.Services.AddScoped<HeroService>();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
