@@ -47,9 +47,34 @@ namespace backend.Services.Implementations
                 .ContinueWith(task => task.Result.Select(ConvertToDTO).ToList());
         }
 
-        public async Task<PlayerDTO> UpdatePlayer(Player player, int playerId)
+        public async Task<CompletePlayerDTO?> UpdatePlayer(
+    UpdatePlayerRequest request,
+    int playerId)
         {
-            return ConvertToDTO(await _playerRepository.UpdatePlayer(player, playerId));
+            Player player = new Player
+            {
+                Gamertag = request.Gamertag,
+                RealName = request.RealName,
+                Birthday = request.Birthday,
+                PlayerRole = request.PlayerRole,
+                NativeRegion = request.NativeRegion,
+                PlayerImage = request.PlayerImage,
+                CurrentTeam = request.CurrentTeam
+            };
+
+            Player? updatedPlayer =
+                await _playerRepository.UpdatePlayer(player, playerId);
+
+            if (updatedPlayer == null)
+            {
+                return null;
+            }
+
+            await _playerRepository.UpdateRatings(
+                playerId,
+                request.Ratings);
+
+            return await _playerRepository.GetPlayerByID(playerId);
         }
 
         private PlayerDTO ConvertToDTO(Player player)

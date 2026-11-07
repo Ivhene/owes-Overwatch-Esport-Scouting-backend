@@ -45,7 +45,7 @@ namespace backend.Repositories.Interfaces
         /// <returns>
         /// The updated <see cref="Player"/>.
         /// </returns>
-        Task<Player> UpdatePlayer(Player player, int playerId);
+        Task<Player?> UpdatePlayer(Player player, int playerId);
 
         /// <summary>
         /// Deletes a player by ID.
@@ -73,5 +73,13 @@ namespace backend.Repositories.Interfaces
         /// A list of the <see cref="Player"/> entities in <paramref name="region"/>.
         /// </returns>
         Task<List<Player>> GetPlayersByRegion(Regions region);
+
+        /// <summary>
+        /// Updates the ratings for a specific player.
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="ratings"></param>
+        /// <returns></returns>
+        Task UpdateRatings(int playerId, IEnumerable<UpdatePlayerRatingRequest> ratings);
     }
 }

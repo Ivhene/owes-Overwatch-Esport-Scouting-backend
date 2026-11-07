@@ -205,9 +205,10 @@ namespace backend.Repositories.Implementations
             return (await _supabase.From<Player>().Where(player => player.CurrentTeam == teamID).Get()).Models ?? new List<Player>();
         }
 
-        public async Task<Player> UpdatePlayer(Player player, int playerId)
+        public async Task<Player?> UpdatePlayer(Player player, int playerId)
         {
-            return (await _supabase.From<Player>()
+            var response = await _supabase
+                .From<Player>()
                 .Where(p => p.PlayerId == playerId)
                 .Set(p => p.Gamertag, player.Gamertag)
                 .Set(p => p.NativeRegion, player.NativeRegion)
@@ -216,8 +217,29 @@ namespace backend.Repositories.Implementations
                 .Set(p => p.PlayerRole, player.PlayerRole)
                 .Set(p => p.PlayerImage, player.PlayerImage)
                 .Set(p => p.CurrentTeam, player.CurrentTeam)
-                .Update())
-                .Model ?? new Player();
+                .Update();
+
+            return response.Model;
+        }
+
+        public async Task UpdateRatings(
+    int playerId,
+    IEnumerable<UpdatePlayerRatingRequest> ratings)
+        {
+            foreach (UpdatePlayerRatingRequest rating in ratings)
+            {
+                var response = await _supabase
+                    .From<Rating>()
+                    .Where(r => r.RatingId == rating.RatingId)
+                    .Set(r => r.Ratings, rating.Ratings)
+                    .Update();
+
+                if (response.Model == null)
+                {
+                    throw new KeyNotFoundException(
+                        $"Rating {rating.RatingId} was not found for player {playerId}.");
+                }
+            }
         }
     }
 }

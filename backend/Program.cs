@@ -27,6 +27,19 @@ builder.Services.AddSingleton(supabase);
 
 builder.Services.AddSingleton(supabase);
 
+// Configure CORS
+const string FrontendPolicyName = "AllowFrontend";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: FrontendPolicyName, policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // your front-end origin
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>
@@ -62,6 +75,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+app.UseCors(FrontendPolicyName);
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

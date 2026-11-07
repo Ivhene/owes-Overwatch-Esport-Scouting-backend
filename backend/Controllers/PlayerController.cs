@@ -45,19 +45,19 @@ namespace backend.Controllers
             return CreatedAtAction(nameof(GetPlayerByID), new { playerID = createdPlayer.PlayerId }, createdPlayer);
         }
 
-        [HttpPut("/players/{playerID}")]
-        public async Task<IActionResult> UpdatePlayer(int playerID, [FromBody] Player player)
+        [HttpPut("/players/{playerID:int}")]
+        public async Task<IActionResult> UpdatePlayer(
+    int playerID,
+    [FromBody] UpdatePlayerRequest request)
         {
-            if (player == null)
-            {
-                return BadRequest("Valid player data is required.");
-            }
+            CompletePlayerDTO? updatedPlayer =
+                await _playerService.UpdatePlayer(request, playerID);
 
-            PlayerDTO updatedPlayer = await _playerService.UpdatePlayer(player, playerID);
             if (updatedPlayer == null)
             {
                 return NotFound();
             }
+
             return Ok(updatedPlayer);
         }
 

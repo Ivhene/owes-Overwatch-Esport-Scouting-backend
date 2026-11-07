@@ -44,7 +44,9 @@ namespace backend.Services.Interfaces
         /// <returns>
         /// A <see cref="Task{TResult}"/> whose result is the updated <see cref="PlayerDTO"/>.
         /// </returns>
-        Task<PlayerDTO> UpdatePlayer(Player player, int playerId);
+        Task<CompletePlayerDTO?> UpdatePlayer(
+    UpdatePlayerRequest request,
+    int playerId);
 
         /// <summary>
         /// Deletes a player by ID.
