@@ -27,6 +27,8 @@ namespace backend.Models
 
         [Column("competing_region")]
         [JsonPropertyName("competing_region")]
+        // NA is enum value 0; without this the global WhenWritingDefault would omit it
+        [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public Regions CompetingRegion { get; set; }
     }
 }

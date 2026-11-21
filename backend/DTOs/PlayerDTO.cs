@@ -24,6 +24,8 @@ namespace backend.DTOs
         public int PlayerRole { get; set; }
 
         [JsonPropertyName("native_region")]
+        // NA is enum value 0; without this the global WhenWritingDefault would omit it
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public Regions NativeRegion { get; set; }
 
         [JsonPropertyName("player_image")]

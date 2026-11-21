@@ -36,6 +36,8 @@ namespace backend.Models
 
         [Column("native_region")]
         [JsonPropertyName("native_region")]
+        // NA is enum value 0; without this the global WhenWritingDefault would omit it
+        [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public Regions NativeRegion { get; set; }
 
         [Column("player_image")]
