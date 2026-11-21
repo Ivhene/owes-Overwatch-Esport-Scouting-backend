@@ -23,6 +23,11 @@ namespace backend.Repositories.Implementations
 
         public async Task<bool> DeletePlayer(int playerID)
         {
+            // rating.player references player without ON DELETE CASCADE, so remove ratings first
+            await _supabase.From<Rating>()
+                .Filter("player", Supabase.Postgrest.Constants.Operator.Equals, playerID.ToString())
+                .Delete();
+
             await _supabase.From<Player>().Where(player => player.PlayerId == playerID).Delete();
 
             return true;
