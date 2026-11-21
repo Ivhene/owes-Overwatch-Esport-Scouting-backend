@@ -2,6 +2,8 @@
 using backend.Models;
 using backend.Services.Implementations;
 using Microsoft.AspNetCore.Mvc;
+using Supabase.Postgrest.Exceptions;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace backend.Controllers
@@ -42,7 +44,15 @@ namespace backend.Controllers
                 return BadRequest("Valid team data is required.");
             }
 
-            TeamDTO created = await _teamService.AddTeam(team);
+            TeamDTO created;
+            try
+            {
+                created = await _teamService.AddTeam(team);
+            }
+            catch (PostgrestException ex) when (TryGetValueTooLongMessage(ex, out string message))
+            {
+                return BadRequest(message);
+            }
             return CreatedAtAction(nameof(GetTeamByID), new { teamID = created.TeamId }, created);
         }
 
@@ -54,7 +64,15 @@ namespace backend.Controllers
                 return BadRequest("Valid team data is required.");
             }
 
-            TeamDTO? updated = await _teamService.UpdateTeam(team, teamID);
+            TeamDTO? updated;
+            try
+            {
+                updated = await _teamService.UpdateTeam(team, teamID);
+            }
+            catch (PostgrestException ex) when (TryGetValueTooLongMessage(ex, out string message))
+            {
+                return BadRequest(message);
+            }
             if (updated == null)
             {
                 return NotFound();
@@ -72,6 +90,36 @@ namespace backend.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+        // Postgres 22001 = string_data_right_truncation (value longer than the varchar column)
+        private static bool TryGetValueTooLongMessage(PostgrestException ex, out string message)
+        {
+            message = string.Empty;
+            if (string.IsNullOrEmpty(ex.Content))
+            {
+                return false;
+            }
+
+            try
+            {
+                using JsonDocument doc = JsonDocument.Parse(ex.Content);
+                if (doc.RootElement.ValueKind != JsonValueKind.Object
+                    || !doc.RootElement.TryGetProperty("code", out JsonElement code)
+                    || code.GetString() != "22001")
+                {
+                    return false;
+                }
+
+                message = doc.RootElement.TryGetProperty("message", out JsonElement msg)
+                    ? msg.GetString() ?? "Value too long."
+                    : "Value too long.";
+                return true;
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
         }
     }
 }
