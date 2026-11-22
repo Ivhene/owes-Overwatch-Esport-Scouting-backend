@@ -61,6 +61,33 @@ namespace backend.Controllers
             return Ok(updatedPlayer);
         }
 
+        [HttpPost("/players/{playerID:int}/ratings")]
+        public async Task<IActionResult> RatePlayer(
+    int playerID,
+    [FromBody] RatePlayerRequest request)
+        {
+            CompletePlayerDTO? ratedPlayer =
+                await _playerService.RatePlayer(playerID, request);
+
+            if (ratedPlayer == null)
+            {
+                return NotFound("Player or hero not found.");
+            }
+
+            return Ok(ratedPlayer);
+        }
+
+        [HttpDelete("/players/{playerID:int}/ratings/{ratingID:long}")]
+        public async Task<IActionResult> DeleteRating(int playerID, long ratingID)
+        {
+            bool deleted = await _playerService.DeleteRating(playerID, ratingID);
+            if (!deleted)
+            {
+                return NotFound("Rating not found for this player.");
+            }
+            return NoContent();
+        }
+
         [HttpDelete("/players/{playerID}")]
         public async Task<IActionResult> DeletePlayer(int playerID)
         {

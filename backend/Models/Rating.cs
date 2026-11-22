@@ -17,12 +17,15 @@ namespace backend.Models
         [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Ratings Ratings { get; set; }
 
+        [Column("hero")]
         [JsonPropertyName("hero")]
         public int HeroId { get; set; }
 
+        [Column("player")]
         [JsonPropertyName("player")]
         public int PlayerId { get; set; }
 
+        [Column("rating_user")]
         [JsonPropertyName("rating_user")]
         public string? RatingUser { get; set; }
     }

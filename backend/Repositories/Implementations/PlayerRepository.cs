@@ -246,5 +246,72 @@ namespace backend.Repositories.Implementations
                 }
             }
         }
+
+        public async Task<Rating?> UpsertRating(int playerId, int heroId, Ratings rating, string? ratingUser)
+        {
+            int playerCount = await _supabase
+                .From<Player>()
+                .Where(p => p.PlayerId == playerId)
+                .Count(Supabase.Postgrest.Constants.CountType.Exact);
+
+            int heroCount = await _supabase
+                .From<Hero>()
+                .Where(h => h.HeroId == heroId)
+                .Count(Supabase.Postgrest.Constants.CountType.Exact);
+
+            if (playerCount == 0 || heroCount == 0)
+            {
+                return null;
+            }
+
+            Rating? existing = (await _supabase
+                .From<Rating>()
+                .Where(r => r.PlayerId == playerId && r.HeroId == heroId)
+                .Get())
+                .Models
+                .FirstOrDefault();
+
+            if (existing != null)
+            {
+                return (await _supabase
+                    .From<Rating>()
+                    .Where(r => r.RatingId == existing.RatingId)
+                    .Set(r => r.Ratings, rating)
+                    .Set(r => r.RatingUser!, ratingUser)
+                    .Update())
+                    .Model;
+            }
+
+            return (await _supabase
+                .From<Rating>()
+                .Insert(new Rating
+                {
+                    PlayerId = playerId,
+                    HeroId = heroId,
+                    Ratings = rating,
+                    RatingUser = ratingUser
+                }))
+                .Model;
+        }
+
+        public async Task<bool> DeleteRating(int playerId, long ratingId)
+        {
+            int ratingCount = await _supabase
+                .From<Rating>()
+                .Where(r => r.RatingId == ratingId && r.PlayerId == playerId)
+                .Count(Supabase.Postgrest.Constants.CountType.Exact);
+
+            if (ratingCount == 0)
+            {
+                return false;
+            }
+
+            await _supabase
+                .From<Rating>()
+                .Where(r => r.RatingId == ratingId && r.PlayerId == playerId)
+                .Delete();
+
+            return true;
+        }
     }
 }

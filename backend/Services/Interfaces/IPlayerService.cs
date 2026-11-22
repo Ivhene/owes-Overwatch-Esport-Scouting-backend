@@ -75,5 +75,28 @@ namespace backend.Services.Interfaces
         /// A <see cref="Task{TResult}"/> whose result is the list of <see cref="PlayerDTO"/>s in <paramref name="region"/>.
         /// </returns>
         Task<List<PlayerDTO>> GetPlayersByRegion(Regions region);
+
+        /// <summary>
+        /// Gives a player a rating on a single hero, overwriting any existing rating
+        /// the player has on that hero.
+        /// </summary>
+        /// <param name="playerId">The ID of the player being rated.</param>
+        /// <param name="request">The hero, rating and rating user.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> whose result is the updated <see cref="CompletePlayerDTO"/>,
+        /// or <c>null</c> if the player or hero does not exist.
+        /// </returns>
+        Task<CompletePlayerDTO?> RatePlayer(int playerId, RatePlayerRequest request);
+
+        /// <summary>
+        /// Deletes a single rating belonging to a player.
+        /// </summary>
+        /// <param name="playerId">The ID of the player the rating belongs to.</param>
+        /// <param name="ratingId">The ID of the rating to remove.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> whose result is <c>true</c> if the rating was deleted;
+        /// <c>false</c> if no rating with that ID exists for the player.
+        /// </returns>
+        Task<bool> DeleteRating(int playerId, long ratingId);
     }
 }

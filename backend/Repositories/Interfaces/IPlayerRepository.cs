@@ -81,5 +81,28 @@ namespace backend.Repositories.Interfaces
         /// <param name="ratings"></param>
         /// <returns></returns>
         Task UpdateRatings(int playerId, IEnumerable<UpdatePlayerRatingRequest> ratings);
+
+        /// <summary>
+        /// Gives a player a rating on a hero. If the player already has a rating
+        /// on that hero it is overwritten, otherwise a new rating is created.
+        /// </summary>
+        /// <param name="playerId">The ID of the player being rated.</param>
+        /// <param name="heroId">The ID of the hero the rating applies to.</param>
+        /// <param name="rating">The <see cref="Ratings"/> value to give.</param>
+        /// <param name="ratingUser">The user giving the rating.</param>
+        /// <returns>
+        /// The created or updated <see cref="Rating"/>, or <c>null</c> if the player or hero does not exist.
+        /// </returns>
+        Task<Rating?> UpsertRating(int playerId, int heroId, Ratings rating, string? ratingUser);
+
+        /// <summary>
+        /// Deletes a single rating belonging to a player.
+        /// </summary>
+        /// <param name="playerId">The ID of the player the rating belongs to.</param>
+        /// <param name="ratingId">The ID of the rating to remove.</param>
+        /// <returns>
+        /// <c>true</c> if the rating was deleted; <c>false</c> if no rating with that ID exists for the player.
+        /// </returns>
+        Task<bool> DeleteRating(int playerId, long ratingId);
     }
 }

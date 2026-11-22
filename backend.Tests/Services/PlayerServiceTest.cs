@@ -163,13 +163,74 @@ namespace backend.Tests.Services
         [Fact]
         public async Task TestUpdatePlayer()
         {
-            Player updatedPlayer = new Player { PlayerId = 1, Gamertag = "UpdatedPlayerOne", NativeRegion = Regions.NA, RealName = "Updated Player One", Birthday = null, PlayerRole = 1, PlayerImage = null, CurrentTeam = 1 };
-            _mockRepo.Setup(r => r.UpdatePlayer(updatedPlayer, 1)).ReturnsAsync(updatedPlayer);
+            UpdatePlayerRequest request = new UpdatePlayerRequest
+            {
+                Gamertag = "UpdatedPlayerOne",
+                NativeRegion = Regions.NA,
+                RealName = "Updated Player One",
+                PlayerRole = 1,
+                CurrentTeam = 1,
+                Ratings = new List<UpdatePlayerRatingRequest>
+                {
+                    new UpdatePlayerRatingRequest { RatingId = 3, Ratings = Ratings.A, Hero = new UpdateRatingHeroRequest { HeroId = 2 } }
+                }
+            };
+            Player updatedPlayer = new Player { PlayerId = 1, Gamertag = request.Gamertag, NativeRegion = request.NativeRegion, RealName = request.RealName, PlayerRole = request.PlayerRole, CurrentTeam = request.CurrentTeam };
 
-            PlayerDTO result = await _service.UpdatePlayer(updatedPlayer, 1);
+            _mockRepo.Setup(r => r.UpdatePlayer(It.Is<Player>(p => p.Gamertag == request.Gamertag), 1)).ReturnsAsync(updatedPlayer);
+            _mockRepo.Setup(r => r.GetPlayerByID(1)).ReturnsAsync(new CompletePlayerDTO { PlayerId = 1, Gamertag = request.Gamertag });
+
+            CompletePlayerDTO? result = await _service.UpdatePlayer(request, 1);
 
             Assert.NotNull(result);
             Assert.Equal("UpdatedPlayerOne", result.Gamertag);
+            _mockRepo.Verify(r => r.UpdateRatings(1, request.Ratings), Times.Once);
+        }
+
+        [Fact]
+        public async Task TestUpdatePlayerNotFound()
+        {
+            _mockRepo.Setup(r => r.UpdatePlayer(It.IsAny<Player>(), 99)).ReturnsAsync((Player?)null);
+
+            CompletePlayerDTO? result = await _service.UpdatePlayer(new UpdatePlayerRequest { Gamertag = "Nobody" }, 99);
+
+            Assert.Null(result);
+            _mockRepo.Verify(r => r.UpdateRatings(It.IsAny<int>(), It.IsAny<IEnumerable<UpdatePlayerRatingRequest>>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task TestRatePlayer()
+        {
+            RatePlayerRequest request = new RatePlayerRequest { HeroId = 2, Rating = Ratings.A, RatingUser = "scout" };
+            _mockRepo.Setup(r => r.UpsertRating(1, 2, Ratings.A, "scout"))
+                .ReturnsAsync(new Rating { RatingId = 5, PlayerId = 1, HeroId = 2, Ratings = Ratings.A, RatingUser = "scout" });
+            _mockRepo.Setup(r => r.GetPlayerByID(1)).ReturnsAsync(new CompletePlayerDTO { PlayerId = 1 });
+
+            CompletePlayerDTO? result = await _service.RatePlayer(1, request);
+
+            Assert.NotNull(result);
+            Assert.Equal(1, result.PlayerId);
+        }
+
+        [Fact]
+        public async Task TestRatePlayerNotFound()
+        {
+            _mockRepo.Setup(r => r.UpsertRating(99, 2, Ratings.A, null)).ReturnsAsync((Rating?)null);
+
+            CompletePlayerDTO? result = await _service.RatePlayer(99, new RatePlayerRequest { HeroId = 2, Rating = Ratings.A });
+
+            Assert.Null(result);
+            _mockRepo.Verify(r => r.GetPlayerByID(It.IsAny<int>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task TestDeleteRating(bool deleted)
+        {
+            _mockRepo.Setup(r => r.DeleteRating(1, 5)).ReturnsAsync(deleted);
+
+            Assert.Equal(deleted, await _service.DeleteRating(1, 5));
         }
     }
 }

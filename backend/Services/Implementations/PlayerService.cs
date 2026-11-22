@@ -77,6 +77,27 @@ namespace backend.Services.Implementations
             return await _playerRepository.GetPlayerByID(playerId);
         }
 
+        public async Task<CompletePlayerDTO?> RatePlayer(int playerId, RatePlayerRequest request)
+        {
+            Rating? rating = await _playerRepository.UpsertRating(
+                playerId,
+                request.HeroId,
+                request.Rating!.Value,
+                request.RatingUser);
+
+            if (rating == null)
+            {
+                return null;
+            }
+
+            return await _playerRepository.GetPlayerByID(playerId);
+        }
+
+        public Task<bool> DeleteRating(int playerId, long ratingId)
+        {
+            return _playerRepository.DeleteRating(playerId, ratingId);
+        }
+
         private PlayerDTO ConvertToDTO(Player player)
         {
             return new PlayerDTO
