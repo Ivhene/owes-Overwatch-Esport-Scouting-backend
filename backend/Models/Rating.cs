@@ -14,7 +14,7 @@ namespace backend.Models
 
         [Column("rating")]
         [JsonPropertyName("rating")]
-        [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public Ratings Ratings { get; set; }
 
         [Column("hero")]
